@@ -20,7 +20,7 @@ don't need to read on.
 ```go
 import (
     "github.com/borud/drydock"
-	"github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/assert"
 )
 
 func TestSomething(t *testing.T) {
