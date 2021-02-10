@@ -18,6 +18,10 @@ don't need to read on.
 ## Example
 
 ```go
+import (
+    "github.com/borud/drydock"
+)
+
 func TestSomething(t *testing.T) {
      // This fires up a Docker container with postgres.  You can
      // run multiple of these concurrently since this creates a
