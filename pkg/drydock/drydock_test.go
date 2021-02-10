@@ -7,7 +7,7 @@ import (
 )
 
 func TestDrydock(t *testing.T) {
-	dd, err := New("postgres")
+	dd, err := New("postgres:latest")
 	assert.Nil(t, err)
 	t.Cleanup(func() { dd.Terminate() })
 

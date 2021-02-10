@@ -28,7 +28,7 @@ func TestSomething(t *testing.T) {
      // new container, listening to a unique port.  New will wait
      // until the database responds or the operation times out
      // before responding.
-     dd, err := drydock.New("postgres")
+     dd, err := drydock.New("postgres:latest")
      assert.Nil(t, err)
 
      // Ask the unit test framework to clean up once the test
