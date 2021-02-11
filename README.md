@@ -62,3 +62,28 @@ func TestSomething(t *testing.T) {
     // the container gets nuked anyway.
 }
 ```
+
+# Where to take this?
+
+This seems to work pretty well.  The container tends to come up in
+about 500ms on my machine, and PostgreSQL then needs another 2500ms or
+so before it is ready to serve requests.
+
+I should be doable to make this somewhat generic, so that it can work
+for a wider range of databases, and perhaps too things that are not
+databases.  What other scenarios would it be nice to make use of
+ephemeral docker containers.
+
+I haven't really figured out the cleanup phase yet.  If we kill the
+test before it shuts down the docker container will remain and needs
+to be removed manually.  There are several ways we could try to solve
+that.
+
+There is also the question of "do we need this?".  It might be cleaner
+to manage docker containers for unit testing in the build system.  But
+being able to do this directly from the tests is somewhat enticing in
+its immediacy and simplicity.
+
+If you find this idea interesting, please do not hesitate to grab the
+code and play with it.  Let me know if you do something interesting
+with it.
