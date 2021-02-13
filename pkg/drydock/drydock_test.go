@@ -1,10 +1,26 @@
 package drydock
 
 import (
+	"fmt"
+	"github.com/jmoiron/sqlx"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestNamedDatabase(t *testing.T) {
+	dd, err := New("postgres:latest")
+	assert.Nil(t, err)
+	t.Cleanup(func() { dd.Terminate() })
+
+	dbName := "db_foobarjalla"
+	db, err := dd.NewDBConnToNamedDb(dbName)
+	assert.Nil(t, err)
+	defer db.Close()
+
+	fmt.Println("JDBC connect string = ", dd.JdbcConnectString(dbName))
+	createAndSelectSomeValues(t, err, db)
+}
 
 func TestDrydock(t *testing.T) {
 	dd, err := New("postgres:latest")
@@ -15,6 +31,10 @@ func TestDrydock(t *testing.T) {
 	assert.Nil(t, err)
 	defer db.Close()
 
+	createAndSelectSomeValues(t, err, db)
+}
+
+func createAndSelectSomeValues(t *testing.T, err error, db *sqlx.DB) {
 	_, err = db.Exec("CREATE TABLE foo (id INTEGER NOT NULL)")
 	assert.Nil(t, err)
 

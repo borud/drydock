@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/rand"
 	"net"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -67,13 +68,17 @@ func New(image string) (*Drydock, error) {
 // NewDBConn creates a new database and returns a client connection to
 // it.
 func (d *Drydock) NewDBConn() (*sqlx.DB, error) {
+	dbName := "db_" + randomString()
+	db, err := d.NewDBConnToNamedDb(dbName)
+	return db, err
+}
+
+func (d *Drydock) NewDBConnToNamedDb(dbName string) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres", d.postgresConnectString(""))
 	if err != nil {
 		return nil, err
 	}
 
-	// Create database
-	dbName := "db_" + randomString()
 	_, err = db.Exec("CREATE DATABASE " + dbName)
 	if err != nil {
 		return nil, err
@@ -181,6 +186,10 @@ func (d Drydock) postgresConnectString(dbName string) string {
 		return fmt.Sprintf("host=localhost user=postgres port=%d password=%s sslmode=disable", d.Port, d.Password)
 	}
 	return fmt.Sprintf("host=localhost user=postgres dbname=%s port=%d password=%s sslmode=disable", dbName, d.Port, d.Password)
+}
+
+func (d Drydock) JdbcConnectString(dbName string) string {
+	return fmt.Sprintf("jdbc:postgresql://%s:%d/%s?user=%s&password=%s", "localhost", d.Port, url.QueryEscape(dbName), "postgres", url.QueryEscape(d.Password))
 }
 
 func randomString() string {
