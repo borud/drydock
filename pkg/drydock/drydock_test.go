@@ -9,7 +9,8 @@ import (
 )
 
 func TestNamedDatabase(t *testing.T) {
-	dd, err := New("postgres:latest")
+	password := "verySekrit"
+	dd, err := NewWithPassword("postgres:latest", password)
 	assert.Nil(t, err)
 	t.Cleanup(func() { dd.Terminate() })
 

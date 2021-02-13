@@ -33,8 +33,14 @@ type Drydock struct {
 
 const internalPort = "5432"
 
-// New creates a new Drydock instance
+// New creates a new Drydock instance with a random password
 func New(image string) (*Drydock, error) {
+	dd, err := NewWithPassword(image, randomString())
+	return dd, err
+}
+
+// New creates a new Drydock instance with a constant password
+func NewWithPassword(image string, password string) (*Drydock, error) {
 	// Create temporary directory
 	tempDir, err := ioutil.TempDir("", "dock")
 	if err != nil {
@@ -58,7 +64,7 @@ func New(image string) (*Drydock, error) {
 		Image:    image,
 		DataDir:  tempDir,
 		Port:     port,
-		Password: randomString(),
+		Password: password,
 		client:   c,
 	}
 
