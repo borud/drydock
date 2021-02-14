@@ -60,12 +60,6 @@ func (builder *DrydockBuilder) Build() (*Drydock, error) {
 		return nil, err
 	}
 
-	// Create client
-	c, err := client.NewEnvClient()
-	if err != nil {
-		return nil, err
-	}
-
 	// If a valid portnumber isn't set, then find
 	// a free port.
 	if builder.Port < 0 {
@@ -75,6 +69,16 @@ func (builder *DrydockBuilder) Build() (*Drydock, error) {
 			return nil, err
 		}
 		builder.Port = port
+	}
+
+	if builder.Image == "" {
+		return nil, fmt.Errorf("Docker image name can't be empty.")
+	}
+
+	// Create client
+	c, err := client.NewEnvClient()
+	if err != nil {
+		return nil, err
 	}
 
 	// Create drydock
