@@ -33,20 +33,27 @@ type Drydock struct {
 
 const internalPort = "5432"
 
-// New creates a new Drydock instance with a random password
-func New(image string) (*Drydock, error) {
-	// Allocate local port
-	port, err := getFreePort()
-	if err != nil {
-		return nil, err
-	}
-	password := randomString()
-	dd, err := NewWithPasswordAndPort(image, password, port)
-	return dd, err
+type DrydockBuilder struct {
+	Image    string
+	Port     int
+	Password string
 }
 
-// New creates a new Drydock instance with a constant password and port
-func NewWithPasswordAndPort(image string, password string, port int) (*Drydock, error) {
+func NewDrydockBuilder() *DrydockBuilder {
+
+	// Get a random string for password
+	password := randomString()
+
+	builder := DrydockBuilder{
+		Image:    "",
+		Port:     -1,
+		Password: password,
+	}
+
+	return &builder
+}
+
+func (builder *DrydockBuilder) Build() (*Drydock, error) {
 	// Create temporary directory
 	tempDir, err := ioutil.TempDir("", "dock")
 	if err != nil {
@@ -59,16 +66,48 @@ func NewWithPasswordAndPort(image string, password string, port int) (*Drydock, 
 		return nil, err
 	}
 
+	// If a valid portnumber isn't set, then find
+	// a free port.
+	if builder.Port < 0 {
+		// Find  an unused local port
+		port, err := getFreePort()
+		if err != nil {
+			return nil, err
+		}
+		builder.Port = port
+	}
+
 	// Create drydock
 	dd := &Drydock{
-		Image:    image,
+		Image:    builder.Image,
 		DataDir:  tempDir,
-		Port:     port,
-		Password: password,
+		Port:     builder.Port,
+		Password: builder.Password,
 		client:   c,
 	}
 
 	return dd, dd.startContainer()
+}
+
+func (builder *DrydockBuilder) SetImage(image string) *DrydockBuilder {
+	builder.Image = image
+	return builder
+}
+
+func (builder *DrydockBuilder) SetPassword(password string) *DrydockBuilder {
+	builder.Password = password
+	return builder
+}
+
+func (builder *DrydockBuilder) SetPort(port int) *DrydockBuilder {
+	builder.Port = port
+	return builder
+}
+
+// New creates a new Drydock instance with a random password and a free port
+func New(image string) (*Drydock, error) {
+	dd, err := NewDrydockBuilder().SetImage(image).Build()
+	return dd, err
 }
 
 // NewDBConn creates a new database and returns a client connection to
