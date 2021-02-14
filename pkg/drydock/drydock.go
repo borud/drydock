@@ -35,20 +35,20 @@ const internalPort = "5432"
 
 // New creates a new Drydock instance with a random password
 func New(image string) (*Drydock, error) {
-	dd, err := NewWithPassword(image, randomString())
-	return dd, err
-}
-
-// New creates a new Drydock instance with a constant password
-func NewWithPassword(image string, password string) (*Drydock, error) {
-	// Create temporary directory
-	tempDir, err := ioutil.TempDir("", "dock")
+	// Allocate local port
+	port, err := getFreePort()
 	if err != nil {
 		return nil, err
 	}
+	password := randomString()
+	dd, err := NewWithPasswordAndPort(image, password, port)
+	return dd, err
+}
 
-	// Allocate local port
-	port, err := getFreePort()
+// New creates a new Drydock instance with a constant password and port
+func NewWithPasswordAndPort(image string, password string, port int) (*Drydock, error) {
+	// Create temporary directory
+	tempDir, err := ioutil.TempDir("", "dock")
 	if err != nil {
 		return nil, err
 	}

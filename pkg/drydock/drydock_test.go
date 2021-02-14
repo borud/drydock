@@ -10,7 +10,7 @@ import (
 
 func TestNamedDatabase(t *testing.T) {
 	password := "verySekrit"
-	dd, err := NewWithPassword("postgres:latest", password)
+	dd, err := NewWithPasswordAndPort("postgres:latest", password, 32950)
 	assert.Nil(t, err)
 	t.Cleanup(func() { dd.Terminate() })
 
