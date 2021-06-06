@@ -8,12 +8,9 @@ turn it into a library.
 
 The basic idea behind this code is this
 
-  - You want to run unit tests against a PostgreSQL database
-  - You want to do all the setup and teardown in the unit test
-  - You have docker installed, you might as well use it
-
-Let's have an example first and then talk later.  With any luck you
-don't need to read on.
+- You want to run unit tests against a PostgreSQL database
+- You want to do all the setup and teardown in the unit test
+- You have docker installed, you might as well use it
 
 ## Example
 
@@ -29,7 +26,7 @@ func TestSomething(t *testing.T) {
      // new container, listening to a unique port.  New will wait
      // until the database responds or the operation times out
      // before responding.
-     dd, err := drydock.New("postgres:latest")
+     dd, err := drydock.New("postgres:13")
      assert.Nil(t, err)
 
      // Ask the unit test framework to clean up once the test
@@ -63,7 +60,7 @@ func TestSomething(t *testing.T) {
 }
 ```
 
-# Where to take this?
+## Where to take this?
 
 This seems to work pretty well.  The container tends to come up in
 about 500ms on my machine, and PostgreSQL then needs another 2500ms or

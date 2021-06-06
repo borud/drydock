@@ -7,9 +7,12 @@ import (
 )
 
 func TestDrydock(t *testing.T) {
-	dd, err := New("postgres:latest")
+	dd, err := New("postgres:13")
 	assert.Nil(t, err)
 	t.Cleanup(func() { dd.Terminate() })
+
+	err = dd.Start()
+	assert.Nil(t, err)
 
 	db, err := dd.NewDBConn()
 	assert.Nil(t, err)

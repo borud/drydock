@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -47,7 +48,7 @@ func New(image string) (*Drydock, error) {
 	}
 
 	// Create client
-	c, err := client.NewEnvClient()
+	c, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +62,25 @@ func New(image string) (*Drydock, error) {
 		client:   c,
 	}
 
-	return dd, dd.startContainer()
+	return dd, nil
+}
+
+// Start the drydock
+func (d *Drydock) Start() error {
+	have, err := d.haveImage()
+	if err != nil {
+		return err
+	}
+
+	if !have {
+		log.Printf("pulling '%s' from registry", d.Image)
+		err := d.pullImage()
+		if err != nil {
+			return err
+		}
+	}
+	log.Printf("starting container for PostgreSQL")
+	return d.startContainer()
 }
 
 // NewDBConn creates a new database and returns a client connection to
@@ -105,6 +124,7 @@ func (d *Drydock) Terminate() {
 		log.Printf("Error stopping container: %v", err)
 	}
 	os.RemoveAll(d.DataDir)
+	log.Printf("shut down container for PostgreSQL")
 }
 
 func (d *Drydock) startContainer() error {
@@ -125,7 +145,7 @@ func (d *Drydock) startContainer() error {
 	containerHostConfig := &container.HostConfig{
 		PortBindings: nat.PortMap{
 			containerPort: []nat.PortBinding{
-				nat.PortBinding{
+				{
 					HostIP:   "0.0.0.0",
 					HostPort: fmt.Sprintf("%d", d.Port),
 				},
@@ -167,10 +187,8 @@ func (d *Drydock) startContainer() error {
 		select {
 		case <-timeout:
 			return errors.New("timed out while connecting to postgres")
-		case <-time.After(100 * time.Millisecond):
-			break
+		default:
 		}
-
 	}
 
 	return err
@@ -200,4 +218,40 @@ func getFreePort() (int, error) {
 	defer l.Close()
 
 	return l.Addr().(*net.TCPAddr).Port, nil
+}
+
+// haveImage returns true if we have the docker image with
+// the given tag, and false if we do not have it.  Error is
+// non nil if we fail to list the images.
+func (d *Drydock) haveImage() (bool, error) {
+	images, err := d.client.ImageList(context.Background(), types.ImageListOptions{All: true})
+	if err != nil {
+		return false, err
+	}
+
+	for _, image := range images {
+		fmt.Printf("%+v\n", image.RepoTags)
+		for _, tag := range image.RepoTags {
+			if tag == d.Image {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
+}
+
+func (d *Drydock) pullImage() error {
+	img, err := d.client.ImagePull(context.Background(), d.Image, types.ImagePullOptions{
+		All: false,
+	})
+	if err != nil {
+		return err
+	}
+	defer img.Close()
+
+	_, err = io.Copy(ioutil.Discard, img)
+	if err != nil {
+		return err
+	}
+	return nil
 }
