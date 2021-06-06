@@ -35,6 +35,10 @@ func TestSomething(t *testing.T) {
      // These will have names that start with "drydock-".
      t.Cleanup(func() { dd.Terminate() })
 
+     // Start the container
+     err = dd.Start()
+     assert.Nil(t, err)
+
      // This creates a new database inside the postgres instance
      // and returns a connection to it.  Or rather, a *sqlx.DB.
      // The idea being that every time you ask for a new DB and
