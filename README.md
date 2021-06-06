@@ -1,8 +1,8 @@
 # Drydock
 
-This code is just an experiment for now.  A sketch to investigate an
-idea.  If it proves useful I will perhaps make it a bit cleaner and
-turn it into a library.
+This code is an experimental library for running PostgreSQL in Docker during unit tests.
+
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/borud/drydock)](<https://pkg.go.dev/github.com/borud/drydock>) [![Go Report Card](https://goreportcard.com/badge/github.com/borud/drydock)](https://goreportcard.com/report/github.com/borud/drydock)
 
 ## Idea
 
