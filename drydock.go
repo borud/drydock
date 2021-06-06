@@ -125,6 +125,7 @@ func (d *Drydock) Terminate() {
 	}
 	os.RemoveAll(d.DataDir)
 	log.Printf("shut down container for PostgreSQL")
+	d.client.Close()
 }
 
 func (d *Drydock) startContainer() error {
