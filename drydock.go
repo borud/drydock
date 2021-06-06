@@ -73,17 +73,26 @@ import (
 
 // Drydock represents a database drydock
 type Drydock struct {
-	Image       string
-	DataDir     string
-	Port        int
-	Password    string
+	// Image is the docker image given by repository and tag, eg. "postgres:13"
+	Image string
+
+	// DataDir is the directory where the data files live during the test
+	DataDir string
+
+	// Port is a randomly allocated free port that is used by the database instance
+	Port int
+
+	// Password of the PostgreSQL database
+	Password string
+
 	containerID string
 	client      *client.Client
 }
 
 const internalPort = "5432"
 
-// New creates a new Drydock instance
+// New creates a new Drydock instance.  Returns a *Drydock and a nil error if
+// successful, otherwise a nil *Drydock and an error
 func New(image string) (*Drydock, error) {
 	// Create temporary directory
 	tempDir, err := ioutil.TempDir("", "dock")
@@ -115,7 +124,8 @@ func New(image string) (*Drydock, error) {
 	return dd, nil
 }
 
-// Start the drydock
+// Start the drydock.  Will pull the image if we do not have
+// it locally before starting the container.
 func (d *Drydock) Start() error {
 	have, err := d.haveImage()
 	if err != nil {
@@ -160,7 +170,8 @@ func (d *Drydock) NewDBConn() (*sqlx.DB, error) {
 	return db, err
 }
 
-// Terminate ...
+// Terminate removes the container, nukes the data directories and closes the
+// docker client.
 func (d *Drydock) Terminate() {
 	err := d.client.ContainerRemove(
 		context.Background(),
