@@ -1,5 +1,7 @@
 # Drydock
 
+![](gopher.png)
+
 This code is an experimental library for running PostgreSQL in Docker during unit tests.
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/borud/drydock)](<https://pkg.go.dev/github.com/borud/drydock>) [![Go Report Card](https://goreportcard.com/badge/github.com/borud/drydock)](https://goreportcard.com/report/github.com/borud/drydock) [![Actions Status](https://github.com/borud/drydock/workflows/test/badge.svg)](https://github.com/borud/drydock)
