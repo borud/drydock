@@ -264,6 +264,7 @@ func (d Drydock) postgresConnectString(dbName string) string {
 }
 
 func randomString() string {
+	rand.Seed(time.Now().UnixNano())
 	return strconv.FormatInt(rand.Int63(), 36)
 }
 
@@ -292,7 +293,6 @@ func (d *Drydock) haveImage() (bool, error) {
 	}
 
 	for _, image := range images {
-		fmt.Printf("%+v\n", image.RepoTags)
 		for _, tag := range image.RepoTags {
 			if tag == d.Image {
 				return true, nil

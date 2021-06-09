@@ -38,5 +38,4 @@ func TestDrydock(t *testing.T) {
 	err = db.Select(&ids, "SELECT id FROM foo")
 	assert.Nil(t, err)
 	assert.Equal(t, 1000, len(ids))
-
 }
