@@ -146,28 +146,38 @@ func (d *Drydock) Start() error {
 // NewDBConn creates a new database and returns a client connection to
 // it.
 func (d *Drydock) NewDBConn() (*sqlx.DB, error) {
-	db, err := sqlx.Connect("postgres", d.postgresConnectString(""))
+	dbName, err := d.NewDB()
 	if err != nil {
 		return nil, err
+	}
+
+	db, err := sqlx.Connect("postgres", d.postgresConnectString(dbName))
+	if err != nil {
+		return nil, err
+	}
+
+	return db, err
+}
+
+// NewDB creates a new database and returns the name
+func (d *Drydock) NewDB() (string, error) {
+	db, err := sqlx.Connect("postgres", d.postgresConnectString(""))
+	if err != nil {
+		return "", err
 	}
 
 	// Create database
 	dbName := "db_" + randomString()
 	_, err = db.Exec("CREATE DATABASE " + dbName)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	err = db.Close()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	db, err = sqlx.Connect("postgres", d.postgresConnectString(dbName))
-	if err != nil {
-		return nil, err
-	}
-
-	return db, err
+	return dbName, nil
 }
 
 // Terminate removes the container, nukes the data directories and closes the
