@@ -12,7 +12,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestDrydock(t *testing.T) {
-	dd, err := New("postgres:13")
+	dd, err := New("postgres:14")
 	assert.Nil(t, err)
 	t.Cleanup(func() { dd.Terminate() })
 
@@ -29,7 +29,7 @@ func TestDrydock(t *testing.T) {
 	stmt, err := db.Preparex("INSERT INTO foo (id) VALUES ($1)")
 	assert.Nil(t, err)
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		_, err := stmt.Exec(i)
 		assert.Nil(t, err)
 	}
@@ -37,5 +37,5 @@ func TestDrydock(t *testing.T) {
 	var ids []int
 	err = db.Select(&ids, "SELECT id FROM foo")
 	assert.Nil(t, err)
-	assert.Equal(t, 1000, len(ids))
+	assert.Equal(t, 100, len(ids))
 }
